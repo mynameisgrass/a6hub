@@ -8,8 +8,12 @@ export default function ConsolePage() {
   const router = useRouter();
   const [users, setUsers] = useState<any[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
+  
+  // Auth State
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [inputPassword, setInputPassword] = useState("");
   
   // User Modal State
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -41,9 +45,9 @@ export default function ConsolePage() {
   const apiHeaders = useCallback(() => {
     return {
       "Content-Type": "application/json",
-      "x-console-password": "hl3108",
+      "x-console-password": inputPassword,
     };
-  }, []);
+  }, [inputPassword]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -53,22 +57,23 @@ export default function ConsolePage() {
       if (res.ok) {
         setUsers(data.users || []);
         setRoles(data.roles || []);
+        setIsAuthenticated(true);
       } else {
-        console.error("fetchData API Error:", data.error);
-        if (res.status === 401) {
-          router.push("/admin");
-        }
+        setIsAuthenticated(false);
+        if (inputPassword) showToast("error", "Sai mật khẩu hoặc phiên hết hạn");
       }
     } catch (err) {
       console.error("fetchData Catch Error:", err);
+      if (inputPassword) showToast("error", "Lỗi kết nối");
     } finally {
       setLoading(false);
     }
-  }, [apiHeaders, router]);
+  }, [apiHeaders, inputPassword]);
 
-  useEffect(() => {
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
     fetchData();
-  }, [fetchData]);
+  };
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,8 +216,47 @@ export default function ConsolePage() {
     }
   };
 
-  if (loading && users.length === 0) {
+  if (loading && users.length === 0 && isAuthenticated) {
     return <div className="h-screen flex items-center justify-center"><Loader2 size={32} className="animate-spin text-black" /></div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        {toast && (
+          <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white transition-all ${toast.type === "success" ? "bg-green-600" : "bg-red-600"}`}>
+            {toast.message}
+          </div>
+        )}
+        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm border text-center">
+          <div className="w-12 h-12 bg-black text-white rounded-xl mx-auto flex items-center justify-center mb-4">
+            <Shield size={24} />
+          </div>
+          <h1 className="text-xl font-bold mb-2">A6Hub Console</h1>
+          <p className="text-sm text-gray-500 mb-6">Vui lòng nhập mật khẩu quản trị viên để tiếp tục</p>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <input 
+              type="password" 
+              placeholder="Mật khẩu..." 
+              value={inputPassword}
+              onChange={(e) => setInputPassword(e.target.value)}
+              className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/20 text-center tracking-widest"
+              autoFocus
+            />
+            <button 
+              type="submit" 
+              disabled={loading || !inputPassword}
+              className="w-full py-2.5 bg-black text-white rounded-xl font-medium text-sm hover:bg-gray-800 transition-colors disabled:opacity-50"
+            >
+              {loading ? <Loader2 size={18} className="animate-spin mx-auto" /> : "Xác nhận"}
+            </button>
+          </form>
+          <button onClick={() => router.push("/")} className="mt-6 text-sm text-gray-400 hover:text-black">
+            Quay lại trang chủ
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
