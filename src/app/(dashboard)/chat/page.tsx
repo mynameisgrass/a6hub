@@ -104,9 +104,9 @@ export default function ChatPage() {
     if (currentUserId) fetchChannels(); 
   }, [fetchChannels, currentUserId]);
 
-  const fetchMessages = useCallback(async () => {
+  const fetchMessages = useCallback(async (isInitial = false) => {
     if (!activeChannel) return;
-    setLoadingMessages(true);
+    if (isInitial) setLoadingMessages(true);
     const { data, error } = await supabase
       .from("messages")
       .select("*, author:profiles!author_id(id, display_name)")
@@ -118,15 +118,15 @@ export default function ChatPage() {
       const formatted = data.map((m: any) => ({ ...m, author: Array.isArray(m.author) ? m.author[0] : m.author }));
       setMessages(formatted);
     }
-    setLoadingMessages(false);
+    if (isInitial) setLoadingMessages(false);
   }, [activeChannel]);
 
-  useEffect(() => { fetchMessages(); }, [fetchMessages]);
+  useEffect(() => { fetchMessages(true); }, [fetchMessages]);
 
   useEffect(() => {
     if (!activeChannel) return;
     const channel = supabase.channel(`messages-${activeChannel}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `channel_id=eq.${activeChannel}` }, () => fetchMessages())
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `channel_id=eq.${activeChannel}` }, () => fetchMessages(false))
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [activeChannel, fetchMessages]);
