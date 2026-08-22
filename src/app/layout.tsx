@@ -11,6 +11,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "A6Hub - Nền tảng học tập & Trao đổi",
   description: "Hub của tập thể 9A6 — Khóa 26",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
