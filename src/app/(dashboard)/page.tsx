@@ -26,7 +26,7 @@ export default function AnnouncementPage() {
   const [loading, setLoading] = useState(true);
   const [newContent, setNewContent] = useState("");
   const [sending, setSending] = useState(false);
-  const [currentUserRole, setCurrentUserRole] = useState<string>("student");
+  const [canPost, setCanPost] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>("");
 
   const fetchAnnouncements = useCallback(async () => {
@@ -58,7 +58,17 @@ export default function AnnouncementPage() {
           .select("role")
           .eq("id", user.id)
           .single();
-        if (profile) setCurrentUserRole(profile.role);
+        if (profile) {
+          const { data: roleData } = await supabase
+            .from("custom_roles")
+            .select("perm_post_announcements")
+            .eq("name", profile.role)
+            .single();
+          
+          if (roleData?.perm_post_announcements) {
+            setCanPost(true);
+          }
+        }
       }
     };
     getUser();
@@ -93,7 +103,6 @@ export default function AnnouncementPage() {
     setSending(false);
   };
 
-  const isLeader = currentUserRole === "leader" || currentUserRole === "vice_leader";
   const pinnedAnnouncements = announcements.filter((a) => a.pinned);
   const recentAnnouncements = announcements.filter((a) => !a.pinned);
 
@@ -107,7 +116,7 @@ export default function AnnouncementPage() {
           </div>
           <div>
             <h1 className="text-lg font-bold text-foreground">Thông báo</h1>
-            <p className="text-sm text-muted-foreground">Thông báo từ Ban cán sự lớp • Chỉ BCS được đăng</p>
+            <p className="text-sm text-muted-foreground">Kênh thông báo chung của lớp</p>
           </div>
         </div>
       </div>
@@ -115,8 +124,8 @@ export default function AnnouncementPage() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto p-6 space-y-6">
-          {/* Post form — only for leaders */}
-          {isLeader && (
+          {/* Post form — only for users with perm_post_announcements */}
+          {canPost && (
             <div className="bg-card border border-border rounded-xl p-4">
               <textarea
                 value={newContent}
