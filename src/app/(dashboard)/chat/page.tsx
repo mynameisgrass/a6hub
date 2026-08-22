@@ -210,9 +210,9 @@ export default function ChatPage() {
             <div className="text-center py-8 text-muted-foreground"><Loader2 size={20} className="animate-spin mx-auto" /></div>
           ) : (
             <>
-              <ChannelSection title="Kênh chung" channels={groupChannels} activeChannel={activeChannel} onSelect={(id) => { setActiveChannel(id); setShowSidebar(false); }} />
-              <ChannelSection title="Nhóm riêng" channels={privateChannels} activeChannel={activeChannel} onSelect={(id) => { setActiveChannel(id); setShowSidebar(false); }} />
-              <ChannelSection title="Tin nhắn riêng" channels={dmChannels} activeChannel={activeChannel} onSelect={(id) => { setActiveChannel(id); setShowSidebar(false); }} />
+              <ChannelSection title="Kênh chung" channels={groupChannels} activeChannel={activeChannel} onSelect={(id: string) => { setActiveChannel(id); setShowSidebar(false); }} />
+              <ChannelSection title="Nhóm riêng" channels={privateChannels} activeChannel={activeChannel} onSelect={(id: string) => { setActiveChannel(id); setShowSidebar(false); }} />
+              <ChannelSection title="Tin nhắn riêng" channels={dmChannels} activeChannel={activeChannel} onSelect={(id: string) => { setActiveChannel(id); setShowSidebar(false); }} />
             </>
           )}
         </div>
@@ -390,25 +390,7 @@ export default function ChatPage() {
   );
 }
 
-// Sub-component to list voice participants
-function VoiceParticipantList() {
-  const participants = useParticipants();
-  if (participants.length === 0) return <div className="text-sm text-gray-400">Đang chờ mọi người tham gia...</div>;
-  
-  return (
-    <div className="flex flex-wrap gap-2">
-      {participants.map(p => (
-        <div key={p.sid} className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full text-xs font-medium border border-white/5">
-          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-            {p.name ? p.name[0].toUpperCase() : "?"}
-          </div>
-          <span className="truncate max-w-[100px]">{p.name || p.identity}</span>
-          {p.isSpeaking && <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse ml-1" />}
-        </div>
-      ))}
-    </div>
-  );
-}
+// Removed unused VoiceParticipantList component
 
 function ChannelSection({ title, channels, activeChannel, onSelect }: any) {
   if (channels.length === 0) return null;
