@@ -1,4 +1,13 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# A6Hub — Mạng xã hội học tập lớp 10A6
+
+Ứng dụng web nội bộ dành riêng cho học sinh lớp 10A6 với các tính năng:
+- Chat nhóm, chat riêng tư
+- Thông báo lớp học
+- Diễn đàn confession (ẩn danh)
+- Trao đổi đồ dùng học tập
+- Thư viện tài liệu
+- Ghi chú cá nhân
+- Hẹn giờ học tập
 
 ## Getting Started
 
