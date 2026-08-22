@@ -195,6 +195,19 @@ export default function ChatPage() {
 
   const canAddMember = currentChannel && currentChannel.type !== 'group' && currentChannel.created_by === currentUserId;
 
+  const renderMessageWithMentions = (content: string, isMe: boolean) => {
+    const parts = content.split(/(@[a-zA-Z0-9_]+)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('@')) {
+        if (part.toLowerCase() === '@all') {
+          return <span key={i} className={`font-bold px-1 rounded ${isMe ? "bg-red-500/30 text-white" : "bg-red-500/10 text-red-600"}`}>{part}</span>;
+        }
+        return <span key={i} className={`font-bold px-1 rounded ${isMe ? "bg-white/20" : "bg-blue-500/10 text-blue-600"}`}>{part}</span>;
+      }
+      return part;
+    });
+  };
+
   return (
     <div className="h-full flex">
       {/* Sidebar */}
@@ -305,9 +318,11 @@ export default function ChatPage() {
                 const isMe = msg.author?.id === currentUserId;
                 return (
                   <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[75%]`}>
+                    <div className={`max-w-[75%] break-words`}>
                       {!isMe && <p className="text-[11px] font-medium text-muted-foreground mb-1 ml-1">{msg.author?.display_name || "Ẩn danh"}</p>}
-                      <div className={`px-3.5 py-2.5 text-sm leading-relaxed ${isMe ? "bg-black text-white rounded-2xl rounded-tr-sm" : "bg-white border text-foreground rounded-2xl rounded-tl-sm shadow-sm"}`}>{msg.content}</div>
+                      <div className={`px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${isMe ? "bg-black text-white rounded-2xl rounded-tr-sm" : "bg-white border text-foreground rounded-2xl rounded-tl-sm shadow-sm"}`}>
+                        {renderMessageWithMentions(msg.content, isMe)}
+                      </div>
                       <p className={`text-[10px] text-muted-foreground mt-1 ${isMe ? "text-right mr-1" : "ml-1"}`}>{new Date(msg.created_at).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</p>
                     </div>
                   </div>
