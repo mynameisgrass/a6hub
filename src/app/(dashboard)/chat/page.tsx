@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  MessageCircle, Search, Plus, Send, Lock, Hash, ArrowLeft, EyeOff, Loader2, X, Headphones, UserPlus, Users
+  MessageCircle, Search, Plus, Send, Lock, Hash, ArrowLeft, EyeOff, Loader2, X, Headphones, UserPlus, Users, Maximize, Minimize
 } from "lucide-react";
 import {
   LiveKitRoom,
@@ -41,6 +41,26 @@ export default function ChatPage() {
   // LiveKit State
   const [activeVoiceRoom, setActiveVoiceRoom] = useState<string | null>(null);
   const [voiceToken, setVoiceToken] = useState<string>("");
+  const voicePanelRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      voicePanelRef.current?.requestFullscreen().catch((err) => {
+        console.error("Lỗi fullscreen:", err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   // Add Member State
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
@@ -237,19 +257,30 @@ export default function ChatPage() {
 
         {/* LiveKit Voice Panel */}
         {activeVoiceRoom === currentChannel?.id && voiceToken && (
-          <div className="border-b border-border bg-black text-white shrink-0 shadow-inner">
+          <div 
+            ref={voicePanelRef} 
+            className={`border-b border-border bg-black text-white shrink-0 shadow-inner ${isFullscreen ? 'h-screen w-screen flex flex-col' : ''}`}
+          >
             <LiveKitRoom
               video={true}
               audio={true}
               token={voiceToken}
               serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-              onDisconnected={() => { setActiveVoiceRoom(null); setVoiceToken(""); }}
-              className="p-4 flex flex-col gap-4 min-h-[50vh] max-h-[70vh]"
+              onDisconnected={() => { setActiveVoiceRoom(null); setVoiceToken(""); if(document.fullscreenElement) document.exitFullscreen(); }}
+              className={`p-4 flex flex-col gap-4 overflow-hidden ${isFullscreen ? 'flex-1' : 'min-h-[50vh] max-h-[70vh]'}`}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-sm font-medium">Đang trong phòng thoại: {currentChannel.name}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={toggleFullscreen} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
+                    {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+                  </button>
+                  <button onClick={() => { setActiveVoiceRoom(null); setVoiceToken(""); if(document.fullscreenElement) document.exitFullscreen(); }} className="p-1.5 hover:bg-red-500/20 text-red-400 hover:text-red-500 rounded-lg transition-colors">
+                    <X size={16} />
+                  </button>
                 </div>
               </div>
               <div className="flex-1 overflow-hidden rounded-xl border border-white/10 relative bg-gray-900">
