@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Shield, Users, Loader2, Plus, X, UserX, UserCheck, Key, Settings2 } from "lucide-react";
+import { Shield, Users, Loader2, Plus, X, UserX, UserCheck, Key, Settings2, Edit2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function ConsolePage() {
@@ -21,6 +21,12 @@ export default function ConsolePage() {
   const [newPassword, setNewPassword] = useState("");
   const [newDisplayName, setNewDisplayName] = useState("");
   const [newUserRole, setNewUserRole] = useState("student");
+  
+  // Edit User Modal State
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editDisplayName, setEditDisplayName] = useState("");
+  const [editUserRole, setEditUserRole] = useState("");
+  const [editResetPassword, setEditResetPassword] = useState("");
   
   // Role Creation Modal State
   const [showCreateRole, setShowCreateRole] = useState(false);
@@ -132,6 +138,43 @@ export default function ConsolePage() {
     } catch (err) {
       console.error("handleCreateRole Catch Error:", err);
       showToast("error", "Lỗi mạng hoặc server không phản hồi");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const openEditUser = (user: any) => {
+    setEditingUser(user);
+    setEditDisplayName(user.display_name || "");
+    setEditUserRole(user.role || "student");
+    setEditResetPassword("");
+  };
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setCreating(true);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: apiHeaders(),
+        body: JSON.stringify({
+          userId: editingUser.id,
+          display_name: editDisplayName,
+          role: editUserRole,
+          resetPassword: editResetPassword || undefined
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast("success", `Đã cập nhật ${editingUser.username}`);
+        setEditingUser(null);
+        await fetchData();
+      } else {
+        showToast("error", data.error || "Lỗi cập nhật user");
+      }
+    } catch {
+      showToast("error", "Lỗi kết nối");
     } finally {
       setCreating(false);
     }
@@ -346,7 +389,10 @@ export default function ConsolePage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button onClick={() => handleDeleteUser(user.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                        <button onClick={() => openEditUser(user)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors mr-1" title="Sửa">
+                          <Edit2 size={16} />
+                        </button>
+                        <button onClick={() => handleDeleteUser(user.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Xóa">
                           <UserX size={16} />
                         </button>
                       </td>
@@ -459,6 +505,40 @@ export default function ConsolePage() {
               <button type="button" onClick={() => setEditingRole(null)} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">Hủy</button>
               <button type="submit" disabled={creating} className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
                 {creating ? <Loader2 size={16} className="animate-spin" /> : "Lưu phân quyền"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/20 flex items-center justify-center p-4 z-50">
+          <form onSubmit={handleUpdateUser} className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+              <h3 className="font-bold flex items-center gap-2">Chỉnh sửa: <span className="text-gray-500 font-normal">@{editingUser.username}</span></h3>
+              <button type="button" onClick={() => setEditingUser(null)} className="text-gray-400"><X size={18} /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Tên hiển thị (Nickname)</label>
+                <input type="text" value={editDisplayName} onChange={(e) => setEditDisplayName(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm" placeholder="VD: Tú" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Quyền hạn (Role)</label>
+                <select value={editUserRole} onChange={(e) => setEditUserRole(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-white cursor-pointer relative z-50">
+                  {roles.map(r => <option key={r.id} value={r.name}>{r.label}</option>)}
+                </select>
+              </div>
+              <div className="pt-2 border-t mt-4">
+                <label className="block text-xs font-medium text-gray-600 mb-1">Đặt lại mật khẩu mới (Bỏ trống nếu không đổi)</label>
+                <input type="text" value={editResetPassword} onChange={(e) => setEditResetPassword(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50" placeholder="Chỉ nhập khi học sinh quên pass" />
+              </div>
+            </div>
+            <div className="p-4 border-t flex justify-end gap-2">
+              <button type="button" onClick={() => setEditingUser(null)} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">Hủy</button>
+              <button type="submit" disabled={creating} className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                {creating ? <Loader2 size={16} className="animate-spin" /> : "Lưu thay đổi"}
               </button>
             </div>
           </form>

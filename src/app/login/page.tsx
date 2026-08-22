@@ -57,7 +57,7 @@ export default function LoginPage() {
             <span className="text-white font-bold text-xl">A6</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">A6Hub</h1>
-          <p className="text-gray-500 mt-1 text-sm">Hub của lớp 12A6 — Chat, học tập, chia sẻ</p>
+          <p className="text-gray-500 mt-1 text-sm">Hub của tập thể 9A6 — Khóa 26</p>
         </div>
 
         {/* Login Card */}

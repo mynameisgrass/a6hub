@@ -59,8 +59,8 @@ export default function MembersPage() {
             <Users className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">Danh sách lớp</h1>
-            <p className="text-sm text-muted-foreground">Các thành viên của 12A6</p>
+            <h1 className="text-lg font-bold text-foreground">Thành viên lớp</h1>
+            <p className="text-sm text-muted-foreground">Các thành viên của 9A6</p>
           </div>
         </div>
       </div>

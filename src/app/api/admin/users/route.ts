@@ -188,14 +188,18 @@ export async function PATCH(request: NextRequest) {
   if (!checkAuth(request)) return unauthorized()
 
   const body = await request.json()
-  const { userId, role, resetPassword } = body
+  const { userId, role, display_name, resetPassword } = body
 
   const admin = createAdminClient()
 
-  if (role) {
+  if (role || display_name) {
+    const updateData: any = {}
+    if (role) updateData.role = role
+    if (display_name) updateData.display_name = display_name
+
     const { error } = await admin
       .from('profiles')
-      .update({ role })
+      .update(updateData)
       .eq('id', userId)
 
     if (error) {

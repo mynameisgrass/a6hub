@@ -83,7 +83,7 @@ export default function DashboardLayout({
           </div>
           <div className="min-w-0">
             <h1 className="text-sm font-bold text-foreground truncate leading-none">A6Hub</h1>
-            <p className="text-[11px] text-muted-foreground mt-0.5 truncate">Lớp 12A6 — Khóa 23</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5 truncate">Lớp 9A6 — Khóa 26</p>
           </div>
         </div>
 

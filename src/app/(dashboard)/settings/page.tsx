@@ -155,7 +155,7 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-1.5">Tên hiển thị</label>
+                      <label className="block text-sm font-medium text-foreground mb-1.5">Tên hiển thị (Nickname)</label>
                       <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="w-full px-3.5 py-2.5 bg-muted border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black/10 transition-all" />
                     </div>
                     <div>

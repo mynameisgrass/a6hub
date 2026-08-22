@@ -10,7 +10,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "A6Hub - Nền tảng học tập & Trao đổi",
-  description: "Hub của lớp 12A6 — Chat, học tập, chia sẻ",
+  description: "Hub của tập thể 9A6 — Khóa 26",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
