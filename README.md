@@ -1,6 +1,6 @@
 # A6Hub — Mạng xã hội học tập lớp 10A6
 
-Ứng dụng web nội bộ dành riêng cho học sinh lớp 10A6 với các tính năng:
+Ứng dụng web nội bộ dành riêng cho học sinh lớp 9A6 với các tính năng:
 - Chat nhóm, chat riêng tư
 - Thông báo lớp học
 - Diễn đàn confession (ẩn danh)
