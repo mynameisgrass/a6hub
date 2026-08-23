@@ -28,21 +28,25 @@ jobs:
       - name: Build iOS App
         working-directory: ./ios/App
         run: |
-          # Build unsigned xcarchive
+          # Build without code signing to get the .app file
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
-            -archivePath App.xcarchive archive \
+            -derivedDataPath build \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO || true
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            build
 
-      - name: Export Unsigned IPA
+      - name: Export Unsigned IPA for TrollStore
         working-directory: ./ios/App
         run: |
           mkdir -p Payload
-          cp -r App.xcarchive/Products/Applications/App.app Payload/ || true
-          zip -r A6Hub-iOS.ipa Payload || true
+          # Copy the .app from DerivedData
+          cp -R build/Build/Products/Release-iphoneos/App.app Payload/
+          # TrollStore requires a proper zip
+          zip -qr A6Hub-iOS.ipa Payload
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
